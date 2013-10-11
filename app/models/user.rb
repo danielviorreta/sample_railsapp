@@ -15,11 +15,6 @@ class User < ActiveRecord::Base
   has_secure_password
   validates :password, length: { minimum: 6 }
 
-  def feed
-    # This is preliminary. See "Following users" for the full implementation.
-    Micropost.where("user_id = ?", id)
-  end
-
   def User.new_remember_token
     SecureRandom.urlsafe_base64
   end
@@ -38,6 +33,10 @@ class User < ActiveRecord::Base
 
   def unfollow!(other_user)
     relationships.find_by(followed_id: other_user.id).destroy!
+  end
+
+  def feed
+    Micropost.from_users_followed_by(self)
   end
 
   private
